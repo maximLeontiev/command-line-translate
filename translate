@@ -1,0 +1,31 @@
+#!/bin/sh
+
+apiKey="trnsl.1.1.20170930T215230Z.ff105c076b6bc45f.34006573cc69d6cda2d46871ec3efb9686cfc067"
+url="https://translate.yandex.net/api/v1.5/tr.json/translate"
+lang=$2
+text=$1
+
+if [[ -z $text ]]; then
+	read -p "translate to: " lang
+	read -p "enter text: " text
+else
+	if [[ -z $lang ]]; then
+		lang="en"
+	fi
+fi
+
+if [[ -z $text ]]; then
+	printf "\n\033[0;31mno text\033[0m\n\n"
+else
+	req="$url?key=$apiKey&lang=$lang"
+	res=$(curl -s -G $req --data-urlencode "text=$text")
+	code=`echo "$res" | jq '.code'`
+	lang=`echo "$res" | jq --raw-output '.lang'`
+	text=`echo "$res" | jq --raw-output '.text[]'`
+
+	if [[ $code == 200 ]]; then
+		printf "\n\033[0;32m$text\033[0m \033[0;34m($lang)\033[0m\n\n"
+	else
+		echo "Server error"
+	fi
+fi
