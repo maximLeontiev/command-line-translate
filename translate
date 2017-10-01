@@ -6,9 +6,15 @@ lang=$2
 text=$1
 
 usage() {
-	echo 'Yandex translate'
+	echo
+	echo
+	echo 'Translate with yandex translate api v1.5'
+	echo
+	echo
 	echo 'Options:'
 	echo '  --list      -- show list of languages'
+	echo
+	echo
 }
 
 langs() {
