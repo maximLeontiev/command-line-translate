@@ -1,15 +1,25 @@
-#Translate in command line
+# Translate in command line
 
 Translate with yandex translate API. Auto detect text language
 Depends of jq
 
-##usage
+## usage
+### translate text to en
+```
+translate {text}
+```
 
-translate {text} - translate text to en
+### translate text to selected language
+```
+translate {text} {language}
+```
 
-translate {text} {language} - translate text to selected language
+### open wizard
+```
+translate
+```
 
-translate - open wizard
-
-translate --list - show list of supported languages
-
+### show list of supported languages
+```
+translate --list
+```
