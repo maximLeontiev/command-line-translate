@@ -26,6 +26,7 @@ langs() {
 
 trans() {
 	local language=$2
+
 	if [[ -z $language ]]; then
 		language="en"
 	fi
@@ -49,9 +50,9 @@ trans() {
 
 wizard() {
 	read -p "enter text: " text
-	read -p "translate to: " lang
+	read -p "translate to (en): " lang
 	
-	trans $text $lang
+	trans "$text" $lang
 }
 
 while [[ $(echo "$1" | cut -c -2) == '--' ]] ; do
@@ -65,5 +66,5 @@ done
 if [[ -z $text ]]; then
 	wizard
 else
-	trans $text $lang
+	trans "$text" $lang
 fi
