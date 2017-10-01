@@ -1,31 +1,63 @@
 #!/bin/sh
 
 apiKey="trnsl.1.1.20170930T215230Z.ff105c076b6bc45f.34006573cc69d6cda2d46871ec3efb9686cfc067"
-url="https://translate.yandex.net/api/v1.5/tr.json/translate"
+url="https://translate.yandex.net/api/v1.5/tr.json"
 lang=$2
 text=$1
 
-if [[ -z $text ]]; then
-	read -p "translate to: " lang
-	read -p "enter text: " text
-else
-	if [[ -z $lang ]]; then
-		lang="en"
+usage() {
+	echo 'Yandex translate'
+	echo 'Options:'
+	echo '  --list      -- show list of languages'
+}
+
+langs() {
+	local req="$url/getLangs?key=$apiKey&ui=en"
+	local res=$(curl -s -G $req --data-urlencode "text=$1")
+
+	echo $res | jq '.langs'
+}
+
+trans() {
+	local language=$2
+	if [[ -z $language ]]; then
+		language="en"
 	fi
-fi
 
-if [[ -z $text ]]; then
-	printf "\n\033[0;31mno text\033[0m\n\n"
-else
-	req="$url?key=$apiKey&lang=$lang"
-	res=$(curl -s -G $req --data-urlencode "text=$text")
-	code=`echo "$res" | jq '.code'`
-	lang=`echo "$res" | jq --raw-output '.lang'`
-	text=`echo "$res" | jq --raw-output '.text[]'`
-
-	if [[ $code == 200 ]]; then
-		printf "\n\033[0;32m$text\033[0m \033[0;34m($lang)\033[0m\n\n"
+	if [[ -z $1 ]]; then
+		printf "\n\033[0;31mNo text :(\033[0m\n\n"
 	else
-		echo "Server error"
+		local req="$url/translate?key=$apiKey&lang=$language"
+		local res=$(curl -s -G $req --data-urlencode "text=$1")
+		local code=`echo "$res" | jq '.code'`
+		local lang=`echo "$res" | jq --raw-output '.lang'`
+		local text=`echo "$res" | jq --raw-output '.text[]'`
+
+		if [[ $code == 200 ]]; then
+			printf "\n\033[0;32m$text\033[0m \033[0;34m($lang)\033[0m\n\n"
+		else
+			echo "Server error"
+		fi
 	fi
+}
+
+wizard() {
+	read -p "enter text: " text
+	read -p "translate to: " lang
+	
+	trans $text $lang
+}
+
+while [[ $(echo "$1" | cut -c -2) == '--' ]] ; do
+	case "$1" in
+		--help  ) usage ; exit ;;
+		--list  ) langs ; exit ;;
+		--* ) echo "Invalid option: $1." >&2 ; exit ;;
+	esac
+done
+
+if [[ -z $text ]]; then
+	wizard
+else
+	trans $text $lang
 fi
